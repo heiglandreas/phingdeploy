@@ -30,6 +30,6 @@ live server. This will do the following:
 
 ## Configuration
 
-For all configuration-parameters have a look into the file [```config/build.properties.dist```](config/build.properties.dist).
+For all configuration-parameters have a look into the file [```config/build.property.dist```](config/build.property.dist).
 You might want to copy that file into your top-folder, rename it to ```build.properties```
 and adapt it to your needs. You can simply remove (or comment out) lines you do not wish to overwrite.
