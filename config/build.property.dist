@@ -1,0 +1,67 @@
+;; Default-Propertyfile for phingdeploy
+;;
+;;
+;; deploy.target
+;;
+;; Defines the target-server on which to deploy the app
+deploy.target = PHINGDEPLOY_TARGET
+;;
+;;
+;; deploy.user
+;;
+;; Defines the user to be uses for SSH-login on the target-server
+deploy.user = PHINGDEPLOY_USER
+;;
+;;
+;; deploy.location
+;;
+;; What folder shall the app be deployed to
+deploy.location = PHINGDEPLOY_LOCATION
+;;
+;;
+;; deploy.method
+;;
+;; What deployment-method shall be used. This can be 'sync' or 'copy'
+;; * sync uses rsync to sync files directly into the currently deployed folder
+;; * copy uses scp to create a new folder that is then symlinked to the deploy.location
+deploy.method = copy
+;;
+;;
+;; deploy.local_folder
+;;
+;; What folder shall we copy the app from. This is the folder in which the content
+;; is copied before the app is deploed.
+deploy.local_folder = deployment
+;;
+;;
+;; deploy.identity_file
+;;
+;; What file shall be used to enable passowrdless login.
+;; This is a private key! So take care of it. Encrypt it before adding it to a repo!
+;; Have a look at http://docs.travis-ci.com/user/encrypting-files/ to see how that is
+;; handled for travis-ci
+deploy.identity_file = ~/.ssh/id_rsa
+;;
+;;
+;; deploy.pre_deploy_script
+;;
+;; This script will be called BEFORE copying any files.
+;; Use it for everything you need to do before copying the files like setting
+;; a maintenance-page or creating a database-backup or whatever is needed
+deploy.pre_deploy_script = deploy_pre.sh
+;;
+;;
+;; deploy.post_deploy_script
+;;
+;; This script will be called aftrer the deployment process has been finished.
+;; Use it for everything you need to do after copying files like moving
+;; config-files or removing the maintenance-page or prewarming caches or
+;; adapting databases or whatever is needed.
+deploy.post_deploy_script = deploy_post.sh
+;;
+;;
+;; deploy.path_to_rsync
+;;
+;; This is the path to the rsync-inary on your path.
+;; This is normally '/usr/bin/rsync' but might be somewhere else
+deploy.path_to_rsync = /usr/bin/rsync

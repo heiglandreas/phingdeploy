@@ -1,0 +1,19 @@
+{
+  "name" : "org_heigl/phingdeploy",
+  "description" : "Deploy your application using PHING",
+  "type" : "library",
+  "keywords" : ["deploy", "deployment", "phing", "capistrano", "rocketeer"],
+  "homepage" : "https://github.com/heiglandreas/phingdeploy",
+  "license"  : "MIT",
+  "authors"  : [{
+    "name" : "Andreas Heigl",
+    "email" : "andresa@heigl.org",
+    "homepage" : "http://andreas.heigl.org",
+    "role" : "developer"
+  }],
+  "support" : {
+    "email": "phingdeploy@heigl.org",
+    "issues": "https://github.com/heiglandreas/phingdeploy/issues",
+    "source": "https://gihub.com/heiglandreas/phingdeploy"
+  }
+}

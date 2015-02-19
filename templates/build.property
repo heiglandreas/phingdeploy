@@ -1,0 +1,46 @@
+;; Propertyfile for phing
+;;
+;; For a complete list of configuration parameters have a look at
+;; https://github.com/heiglandreas/phingdeploy/
+;;
+;;
+;; deploy.target
+;;
+;; Defines the target-server on which to deploy the app
+deploy.target = PHINGDEPLOY_TARGET
+;;
+;;
+;; deploy.user
+;;
+;; Defines the user to be uses for SSH-login on the target-server
+deploy.user = PHINGDEPLOY_USER
+;;
+;;
+;; deploy.location
+;;
+;; What folder shall the app be deployed to
+deploy.location = PHINGDEPLOY_LOCATION
+;;
+;;
+;; deploy.method
+;;
+;; What deployment-method shall be used. This can be 'sync' or 'copy'
+;; * sync uses rsync to sync files directly into the currently deployed folder
+;; * copy uses scp to create a new folder that is then symlinked to the deploy.location
+deploy.method = PHINGDEPLOY_METHOD
+;;
+;;
+;; deploy.local_folder
+;;
+;; What folder shall we copy the app from. This is the folder in which the content
+;; is copied before the app is deploed.
+deploy.local_folder = PHINGDEPLOY_LOCAL_FOLDER
+;;
+;;
+;; deploy.identity_file
+;;
+;; What file shall be used to enable passowrdless login.
+;; This is a private key! So take care of it. Encrypt it before adding it to a repo!
+;; Have a look at http://docs.travis-ci.com/user/encrypting-files/ to see how that is
+;; handled for travis-ci
+deploy.identity_file = PHINGDEPLOY_IDENTITY_FILE

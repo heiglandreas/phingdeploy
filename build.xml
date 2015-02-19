@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) 2015-2015 Andreas Heigl<andreas@heigl.org>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * This is the phing-buildfile for automated deployment
+ *
+ * @package   phingdeploy
+ * @author    Andreas Heigl <andreas@heigl.org>
+ * @copyright 2015 Andreas Heigl<andreas@heigl.org>
+ * @license   http://www.opensource.org/licenses/mit-license.php MIT-License
+ * @version   0.1
+ * @since     12.02.2015
+ */
+-->
+<project name="phingdeploy" basedir="." >
+
+    <property file="./build.property"/>
+    <property file="${phing.dir.phingdeploy}/config/build.property.dist"/>
+
+    <target name="phingdeploy.updatePhp">
+        <echo>Calling composer install</echo>
+        <composer command="install"/>
+    </target>
+
+    <target name="phingdeploy.updateAssets">
+        <echo>Calling bower install</echo>
+        <exec passthru="true" command="bower install"/>
+    </target>
+
+    <target name="phingdeploy.createDeployFolder">
+        <echo>Creating Deployment-Folder</echo>
+        <mkdir dir="${deploy.local_folder}" />
+        <copy todir="${deploy.local_folder}">
+            <fileset dir="${basedir}" excludesfile="deploy_exclude.property" includesfile="deploy_include.property" />
+        </copy>
+    </target>
+
+    <target name="phingdeploy.copyDeployFolderToServer">
+        <echo>Copying files to target ${deploy.target}</echo>
+        <exec command="ssh -i ${deploy.identity_file} ${deploy.user}@${deploy.target} 'mkdir -p ${deploy.location}'" />
+        <exec dir="${deploy.local_folder}" command="scp -rv ./* $deploy.user@${deploy.target}:${deploy.location}" />
+    </target>
+
+    <target name="phingdeploy.syncDeployFolderToServer">
+        <echo>Synching files to target ${deploy.target}</echo>
+        <exec command="ssh -i ${deploy.identity_file} ${deploy.user}@${deploy.target} 'mkdir -p ${deploy.location}'" />
+        <filesync destinationDir="${deploy.user}@${deploy.target}:${deploy.location}"
+                  rsyncPath="${deploy.path_to_rsync}"
+                  sourceDir="${deploy.local_folder}/."
+                  checksum="true"
+                  options="-e 'ssh -i ${deploy.identity_file}' -aKz"
+                />
+    </target>
+
+    <target name="phingdeploy.callPostDeployScriptOnServer">
+        <echo>Calling post-deploy-script on target ${deploy.target}</echo>
+        <exec command="ssh -i ${deploy.identity_file} ${deploy.user}@${deploy.target} '${deploy.location}/${deploy.post_deploy_script}'"/>
+    </target>
+
+    <target name="phingdeploy.callPreDeployScriptOnServer" >
+        <available property="deploy.pre_deploy_script_exists" file="${deploy.local_folder}/${deploy.pre_deploy_script}"/>
+        <if>
+            <isset property="deploy.pre_deploy_script_exists"/>
+            <then>
+                <echo>Calling pre-deploy-script on target ${deploy.target}</echo>
+                <loadfile property="deploy.pre_deploy_script_content" file="${deploy.local_folder}/${deploy.pre_deploy_script}"/>
+                <exec command="ssh  -i ${deploy.identity_file} ${deploy.user}@${deploy.target} '${deploy.pre_deploy_script_content}'"/>
+            </then>
+        </if>
+    </target>
+
+    <target name="phingdeploy.deployFolderToServer">
+        <if>
+            <equals arg1="sync" arg2="${deploy.method}"/>
+            <then>
+                <phingcall inheritAll="true" target="syncDeployFolderToServer"/>
+            </then>
+            <elseif>
+                <equals arg1="copy" arg2="${deploy.method}"/>
+                <then>
+                    <phingcall target="copyDeployFolderToServer" inheritAll="true"/>
+                </then>
+            </elseif>
+        </if>
+    </target>
+
+    <target name="phingdeploy.removeDeployFolder">
+        <echo>Removing ${deploy.local_folder}</echo>
+        <delete dir="${deploy.local_folder}" includeemptydirs="true"/>
+    </target>
+
+    <target name="phingdeploy" depends="phingbuild.update,
+                                        phingbuild.updateAssets,
+                                        phingbuild.createDeployFolder,
+                                        phingbuild.callPreDeployScriptOnServer,
+                                        phingbuild.deployFolderToServer,
+                                        phingbuild.callPostDeployScriptOnServer,
+                                        phingbuild.removeDeployFolder">
+        <echo>Deploying application</echo>
+    </target>
+
+    <target name="phingdeploy.install">
+        <copy todir=".">
+            <fileset dir="${phing.dir.phingdeploy}/templates"/>
+            <filterchain>
+                <replacetokens>
+                    <token key="" value=""/>
+                </replacetokens>
+            </filterchain>
+        </copy>
+    </target>
+
+</project>
